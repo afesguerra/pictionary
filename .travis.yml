@@ -1,0 +1,16 @@
+language: java
+dist: trusty
+install: true
+jdk:
+- openjdk8
+addons:
+  sonarcloud:
+    organization: afesguerra-github
+    token:
+      secure: ccMAjbrbSW+ur0fRyBU05X0KMnbHRUbIoAj1RjHbonUrODDEduJ+1q4R6/y89zAB0HuBBEG9uVJIu5FIdFSOieLFUp4Sw3uusnSRePn625+eXhwmYRpye4YMSVT6txMe9PnIBax8Crfbflp39ShhTqRv8cC12kdcRYKP4QP/kAEyJYJc5BuOToncPdJww0rbniHKRfRHc9TfBHBfTlyKg89QleNEboz2enxiA5Uh77CauXRM/GcF6K20Lv3HLPJEGsCA9KGqlfbDMn+uIzLT6aaJOJUGPJVf7TAPp3eEW6U4kjwt/ScuoyfODGWzhbpNXbBlUrq27klESZa2cfCs3KeJirNDVJ2PWMk/Gem9zlBO0a9fWkrAwiuXpZ+m+FWBrlPHwnsACrgTx2D6wXZQ4orb6omBYfc1U4uz1vphttgL+NGN927svTInf7fCH+GicbmKAEgIEzr4anQEugHvSDIN/tWYXx+WtBAbUNHUB8cdKVGhZm/Vig0eQHWEQoOmVORyaqPQ0A/pjZWq8AUGyzvnZjs1OdxBFM/igr/nunDJ0mC9BcQxr0yf5YYQHdOdEZlKus0g60OWP0qY9QF0yJhz9sKgOPF/o3o+k6nhAmkuIbB9IkwlzOEamk6GXGXc+y7XhS0iWFdruKQgD58xVJyLjOOPfRr1YW/AO9kD1cQ=
+script:
+- mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar
+cache:
+  directories:
+    - '$HOME/.m2/repository'
+    - '$HOME/.sonar/cache'
