@@ -1,66 +1,80 @@
 package cliente.vista;
 
+import lombok.extern.slf4j.Slf4j;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * @author Andr�s Felipe Esguerra Restrepo
  * @author Luis Eduardo Naranjo Contreras
  */
+@Slf4j
 public class VentanaInicio extends JFrame {
     private static final long serialVersionUID = 1L;
-    private JTextField ipServer; // Campo donde se ingresa la direcci�n IP del
-    // servidor
-    private JTextField nomUser; // Campo donde se ingresa el nombre de usuario
-    // deseado
-    private JButton boton; // Bot�n para enviar la informaci�n al servidor
+    private static final LayoutManager LAYOUT = new GridLayout(3, 1);
+    private static final Dimension DIMENSION = new Dimension(300, 200);
 
-    /**
-     * Se encarga de crear una ventana donde el usuario puede registrarse para
-     * jugar
-     */
-    public VentanaInicio() {
+    private final JTextField nomUser = new JTextField();
+    private final Consumer<String> onGameStart;
+
+    public VentanaInicio(Consumer<String> onGameStart) {
+        this.onGameStart = onGameStart;
+
+        log.info("Building!");
+
         setTitle("Sketching");
-        setSize(300, 200);
+        setSize(DIMENSION);
+        setLayout(LAYOUT);
         setLocationRelativeTo(null);
         setResizable(false);
-        setLayout(new GridLayout(3, 1));
-        ipServer = new JTextField();
-        ipServer.setBorder(BorderFactory
-                .createTitledBorder("Ingrese la IP del servidor"));
-        nomUser = new JTextField();
-        nomUser.setBorder(BorderFactory
-                .createTitledBorder("Ingrese su nombre de usuario"));
-        boton = new JButton("Enviar");
-        add(ipServer);
+
+        nomUser.setBorder(BorderFactory.createTitledBorder("Ingrese su nombre de usuario"));
+
+        JButton boton = new JButton("Enviar");
+        boton.addActionListener(this::onSend);
+
         add(nomUser);
         add(boton);
     }
 
-    /**
-     * Retorna el campo de texto donde se escribe la IP del servidor
-     *
-     * @return Objeto JTextField
-     */
-    public JTextField getIpServer() {
-        return ipServer;
+    private String getValidUsername() {
+        String username = nomUser.getText();
+        if (Objects.isNull(username) || username.equals("")) {
+            throw new IllegalArgumentException("Username cannot be blank");
+        }
+
+        if (username.contains(";")) {
+            throw new IllegalArgumentException("Username cannot contain semicolons");
+        }
+
+        return username;
     }
 
-    /**
-     * Retorna el campo de texto donde se escribe el nombre de usuario deseado
-     *
-     * @return
-     */
-    public JTextField getNomUser() {
-        return nomUser;
-    }
+    private void onSend(ActionEvent event) {
+        log.info("Sending join game request");
+        final String username;
 
-    /**
-     * Se encarga de retornar el bot�n de enviar
-     *
-     * @return
-     */
-    public JButton getBoton() {
-        return boton;
+        try {
+            username = this.getValidUsername();
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this,
+                    e.getMessage(),
+                    "Invalid input",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+        try {
+            onGameStart.accept(username);
+        } finally {
+            this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        }
+
+        this.dispose();
     }
 }
